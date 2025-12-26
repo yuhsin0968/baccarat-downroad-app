@@ -1,20 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <title>百家樂大路下三路</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>百家樂大路產生器</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>百家樂輸入系統</h1>
-  <div id="buttons">
-    <button onclick="addResult('B')">莊</button>
-    <button onclick="addResult('P')">閒</button>
-    <button onclick="addResult('T')">和</button>
-    <button onclick="clearResults()">清除</button>
+  <div class="container">
+    <h1>🎲 百家樂大路產生器</h1>
+    <p>請輸入莊(B)、閒(P)、和(T)：</p>
+    <input type="text" id="inputString" placeholder="例如：pbppbbpbtp" />
+    <button onclick="drawRoad()">畫出大路</button>
+    <div id="roadMap" class="road"></div>
   </div>
-  <div id="bead-road"></div>
-
   <script src="main.js"></script>
 </body>
 </html>
