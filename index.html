@@ -6,129 +6,84 @@
   <style>
     body {
       font-family: sans-serif;
-      text-align: center;
-      padding: 20px;
-      background: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px;
     }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
     .button-area {
       margin-bottom: 20px;
     }
+
     button {
-      font-size: 20px;
-      padding: 10px 20px;
       margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
       cursor: pointer;
     }
-    .red { background-color: #e74c3c; color: white; }
-    .blue { background-color: #3498db; color: white; }
-    .green { background-color: #2ecc71; color: white; }
-    .gray { background-color: #bdc3c7; color: black; }
+
+    .banker { background-color: red; color: white; }
+    .player { background-color: blue; color: white; }
+    .tie    { background-color: green; color: white; }
+    .undo   { background-color: gray; color: white; }
+    .reset  { background-color: black; color: white; }
 
     .grid {
-      display: flex;
-      flex-wrap: wrap;
-      width: fit-content;
-      margin: 0 auto;
-      border: 2px solid #333;
+      display: grid;
+      grid-template-columns: repeat(6, 40px);
+      grid-template-rows: repeat(20, 40px);
+      gap: 4px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      background-color: #f9f9f9;
     }
-    .column {
-      display: flex;
-      flex-direction: column;
-      border-right: 1px solid #aaa;
-    }
+
     .cell {
-      width: 50px;
-      height: 50px;
-      border-bottom: 1px solid #aaa;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .dot {
-      width: 30px;
-      height: 30px;
+      width: 40px;
+      height: 40px;
+      border: 1px solid #ddd;
       border-radius: 50%;
+      background-color: white;
     }
-    .dot.red { background-color: #e74c3c; }
-    .dot.blue { background-color: #3498db; }
-    .dot.green { background-color: #2ecc71; }
+
+    .cell.banker { background-color: red; }
+    .cell.player { background-color: blue; }
+    .cell.tie    { background-color: green; }
   </style>
 </head>
 <body>
-  <h2>百家樂大路輸入系統</h2>
+  <h1>百家樂 大路輸入系統</h1>
 
   <div class="button-area">
-    <button class="red" onclick="addResult('B')">莊</button>
-    <button class="blue" onclick="addResult('P')">閒</button>
-    <button class="green" onclick="addResult('T')">和</button>
-    <button class="gray" onclick="undo()">清除</button>
-    <button class="gray" onclick="clearAll()">全部清除</button>
+    <button class="banker">莊</button>
+    <button class="player">閒</button>
+    <button class="tie">和</button>
+    <button class="undo">清除</button>
+    <button class="reset">全部清除</button>
   </div>
 
-  <div class="grid" id="roadGrid"></div>
+  <div class="grid" id="roadGrid">
+    <!-- 自動產生格子 -->
+  </div>
 
   <script>
-    const results = []; // 儲存輸入結果
-    const maxRows = 6;
+    const grid = document.getElementById("roadGrid");
 
-    function addResult(type) {
-      results.push(type);
-      renderGrid();
+    // 建立格子 6欄 × 20列 = 120格
+    for (let i = 0; i < 6 * 20; i++) {
+      const cell = document.createElement("div");
+      cell.classList.add("cell");
+      grid.appendChild(cell);
     }
 
-    function undo() {
-      results.pop();
-      renderGrid();
-    }
-
-    function clearAll() {
-      results.length = 0;
-      renderGrid();
-    }
-
-    function renderGrid() {
-      const grid = document.getElementById("roadGrid");
-      grid.innerHTML = "";
-
-      let column = [];
-      let columns = [];
-
-      results.forEach((r, index) => {
-        if (column.length >= maxRows) {
-          columns.push(column);
-          column = [];
-        }
-        column.push(r);
-      });
-      if (column.length > 0) columns.push(column);
-
-      columns.forEach(col => {
-        const colDiv = document.createElement("div");
-        colDiv.className = "column";
-
-        for (let i = 0; i < maxRows; i++) {
-          const cell = document.createElement("div");
-          cell.className = "cell";
-          const value = col[i];
-          if (value) {
-            const dot = document.createElement("div");
-            dot.className = `dot ${getColor(value)}`;
-            cell.appendChild(dot);
-          }
-          colDiv.appendChild(cell);
-        }
-        grid.appendChild(colDiv);
-      });
-    }
-
-    function getColor(value) {
-      switch(value) {
-        case 'B': return 'red';    // 莊
-        case 'P': return 'blue';   // 閒
-        case 'T': return 'green';  // 和
-        default: return '';
-      }
-    }
+    // 👇 未來這裡會接上畫點與記錄邏輯
   </script>
 </body>
 </html>
