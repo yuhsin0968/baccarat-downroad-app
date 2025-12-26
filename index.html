@@ -2,66 +2,65 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>百家樂大路輸入系統</title>
+  <title>百家樂大路畫面 UI</title>
   <style>
     body {
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 20px;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f0f0f0;
     }
 
     h1 {
-      margin-bottom: 10px;
+      text-align: center;
     }
 
-    .button-area {
+    /* 按鈕區 */
+    .buttons {
       margin-bottom: 20px;
+      text-align: center;
     }
 
-    button {
+    .buttons button {
       margin: 5px;
       padding: 10px 20px;
       font-size: 16px;
-      border-radius: 6px;
       border: none;
+      border-radius: 5px;
       cursor: pointer;
     }
 
-    .banker { background-color: red; color: white; }
-    .player { background-color: blue; color: white; }
-    .tie    { background-color: green; color: white; }
-    .undo   { background-color: gray; color: white; }
-    .reset  { background-color: black; color: white; }
+    .banker { background-color: #e74c3c; color: white; }   /* 莊紅 */
+    .player { background-color: #3498db; color: white; }   /* 閒藍 */
+    .tie    { background-color: #2ecc71; color: white; }   /* 和綠 */
+    .undo   { background-color: #f39c12; color: white; }   /* 清除橘 */
+    .reset  { background-color: #7f8c8d; color: white; }   /* 全部清除灰 */
 
+    /* 大路格子區 */
     .grid {
       display: grid;
-      grid-template-columns: repeat(6, 40px);
-      grid-template-rows: repeat(20, 40px);
-      gap: 4px;
-      border: 1px solid #ccc;
-      padding: 10px;
-      background-color: #f9f9f9;
+      grid-template-columns: repeat(20, 40px); /* 20 欄 */
+      grid-template-rows: repeat(6, 40px);     /* 6 行 */
+      gap: 1px;
+      justify-content: center;
+      background-color: black;
+      padding: 5px;
     }
 
     .cell {
       width: 40px;
       height: 40px;
-      border: 1px solid #ddd;
-      border-radius: 50%;
       background-color: white;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
     }
 
-    .cell.banker { background-color: red; }
-    .cell.player { background-color: blue; }
-    .cell.tie    { background-color: green; }
   </style>
 </head>
 <body>
-  <h1>百家樂 大路輸入系統</h1>
 
-  <div class="button-area">
+  <h1>百家樂 大路畫面 UI</h1>
+
+  <div class="buttons">
     <button class="banker">莊</button>
     <button class="player">閒</button>
     <button class="tie">和</button>
@@ -69,21 +68,27 @@
     <button class="reset">全部清除</button>
   </div>
 
-  <div class="grid" id="roadGrid">
-    <!-- 自動產生格子 -->
+  <div class="grid">
+    <!-- 建立 20 x 6 = 120 個格子 -->
+    <!-- 行為直向6格，列為橫向20格 -->
+    <!-- 這裡單純為畫面，每格填入空白，未含資料與邏輯 -->
+    <!-- 若要加入邏輯，之後可用 JS 操作 class 變色與記錄 -->
+    <!-- 用 JS 動態產生也可以，但先靜態排版 -->
+    <!-- 橫向 20 行，每行塞6格，共 20*6 = 120 -->
+    <!-- 用 for 產生 120 格 -->
+    <!-- 可用 JS 自動化，這裡手寫為展示 -->
+    <!-- 可用 JS 產生 grid 時 class 加上座標方便後續處理 -->
+    <!-- 例如 class="cell x0 y0" 表示第1欄第1列 -->
+    <!-- 實作時建議用 JS 動態建立並加上標籤 -->
+    <!-- 以下只是簡單靜態生成 -->
+    <script>
+      for (let y = 0; y < 6; y++) {
+        for (let x = 0; x < 20; x++) {
+          document.write(`<div class="cell" data-x="${x}" data-y="${y}"></div>`);
+        }
+      }
+    </script>
   </div>
 
-  <script>
-    const grid = document.getElementById("roadGrid");
-
-    // 建立格子 6欄 × 20列 = 120格
-    for (let i = 0; i < 6 * 20; i++) {
-      const cell = document.createElement("div");
-      cell.classList.add("cell");
-      grid.appendChild(cell);
-    }
-
-    // 👇 未來這裡會接上畫點與記錄邏輯
-  </script>
 </body>
 </html>
