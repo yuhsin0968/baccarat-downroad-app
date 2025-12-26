@@ -1,94 +1,169 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <title>百家樂大路畫面 UI</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>百家樂大路系統</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      margin: 0;
       padding: 20px;
-      background-color: #f0f0f0;
+      font-family: "Noto Sans TC", sans-serif;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     h1 {
-      text-align: center;
+      margin-bottom: 10px;
     }
 
-    /* 按鈕區 */
-    .buttons {
+    #button-group {
       margin-bottom: 20px;
-      text-align: center;
     }
 
-    .buttons button {
-      margin: 5px;
+    button {
       padding: 10px 20px;
+      margin: 5px;
       font-size: 16px;
+      border-radius: 6px;
       border: none;
-      border-radius: 5px;
       cursor: pointer;
     }
 
-    .banker { background-color: #e74c3c; color: white; }   /* 莊紅 */
-    .player { background-color: #3498db; color: white; }   /* 閒藍 */
-    .tie    { background-color: #2ecc71; color: white; }   /* 和綠 */
-    .undo   { background-color: #f39c12; color: white; }   /* 清除橘 */
-    .reset  { background-color: #7f8c8d; color: white; }   /* 全部清除灰 */
-
-    /* 大路格子區 */
-    .grid {
+    #grid {
       display: grid;
-      grid-template-columns: repeat(20, 40px); /* 20 欄 */
-      grid-template-rows: repeat(6, 40px);     /* 6 行 */
-      gap: 1px;
-      justify-content: center;
-      background-color: black;
-      padding: 5px;
+      grid-template-columns: repeat(20, 30px);
+      grid-template-rows: repeat(6, 30px);
+      gap: 2px;
     }
 
     .cell {
-      width: 40px;
-      height: 40px;
-      background-color: white;
+      width: 30px;
+      height: 30px;
       border: 1px solid #ccc;
       box-sizing: border-box;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
     }
 
+    .banker {
+      background-color: red;
+    }
+
+    .player {
+      background-color: blue;
+    }
   </style>
 </head>
 <body>
 
-  <h1>百家樂 大路畫面 UI</h1>
+  <h1>百家樂大路</h1>
 
-  <div class="buttons">
-    <button class="banker">莊</button>
-    <button class="player">閒</button>
-    <button class="tie">和</button>
-    <button class="undo">清除</button>
-    <button class="reset">全部清除</button>
+  <div id="button-group">
+    <button onclick="addResult('b')">莊</button>
+    <button onclick="addResult('p')">閒</button>
+    <button onclick="addResult('t')">和</button>
+    <button onclick="undo()">清除</button>
+    <button onclick="reset()">全部清除</button>
   </div>
 
-  <div class="grid">
-    <!-- 建立 20 x 6 = 120 個格子 -->
-    <!-- 行為直向6格，列為橫向20格 -->
-    <!-- 這裡單純為畫面，每格填入空白，未含資料與邏輯 -->
-    <!-- 若要加入邏輯，之後可用 JS 操作 class 變色與記錄 -->
-    <!-- 用 JS 動態產生也可以，但先靜態排版 -->
-    <!-- 橫向 20 行，每行塞6格，共 20*6 = 120 -->
-    <!-- 用 for 產生 120 格 -->
-    <!-- 可用 JS 自動化，這裡手寫為展示 -->
-    <!-- 可用 JS 產生 grid 時 class 加上座標方便後續處理 -->
-    <!-- 例如 class="cell x0 y0" 表示第1欄第1列 -->
-    <!-- 實作時建議用 JS 動態建立並加上標籤 -->
-    <!-- 以下只是簡單靜態生成 -->
-    <script>
-      for (let y = 0; y < 6; y++) {
-        for (let x = 0; x < 20; x++) {
-          document.write(`<div class="cell" data-x="${x}" data-y="${y}"></div>`);
+  <div id="grid"></div>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const maxCols = 20;
+    const maxRows = 6;
+    const cells = [];
+    const results = [];
+
+    // 初始化格線
+    for (let row = 0; row < maxRows; row++) {
+      for (let col = 0; col < maxCols; col++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.row = row;
+        cell.dataset.col = col;
+        grid.appendChild(cell);
+        cells.push(cell);
+      }
+    }
+
+    function drawGrid() {
+      // 清空畫面
+      cells.forEach(cell => {
+        cell.classList.remove('banker', 'player');
+      });
+
+      // 畫大路
+      let col = 0;
+      let row = 0;
+      let currentColor = null;
+      let fixedRow = null; // 擠位行
+      let tempCol = col;
+
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        if (result === 't') continue; // 和不佔格
+
+        if (i === 0) {
+          // 第一顆
+          currentColor = result;
+          row = 0;
+          col = 0;
+        } else {
+          if (result === currentColor) {
+            // 同色：往下畫
+            if (row < maxRows - 1 && !getCell(col, row + 1).classList.contains('banker') && !getCell(col, row + 1).classList.contains('player')) {
+              row++;
+            } else {
+              // 向右擠位固定行
+              if (fixedRow === null) fixedRow = row;
+              col++;
+              row = fixedRow;
+            }
+          } else {
+            // 換色：往右一欄第1行（直落）
+            col++;
+            row = 0;
+            currentColor = result;
+            fixedRow = null;
+          }
+        }
+
+        const cell = getCell(col, row);
+        if (cell) {
+          cell.classList.add(result === 'b' ? 'banker' : 'player');
         }
       }
-    </script>
-  </div>
+    }
+
+    function getCell(col, row) {
+      if (col >= 0 && col < maxCols && row >= 0 && row < maxRows) {
+        return cells[row * maxCols + col];
+      }
+      return null;
+    }
+
+    function addResult(result) {
+      results.push(result);
+      drawGrid();
+    }
+
+    function undo() {
+      results.pop();
+      drawGrid();
+    }
+
+    function reset() {
+      results.length = 0;
+      drawGrid();
+    }
+  </script>
 
 </body>
 </html>
