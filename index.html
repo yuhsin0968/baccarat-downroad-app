@@ -1,19 +1,134 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>百家樂大路產生器</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>百家樂大路輸入系統</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    .button-area {
+      margin-bottom: 20px;
+    }
+    button {
+      font-size: 20px;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    .red { background-color: #e74c3c; color: white; }
+    .blue { background-color: #3498db; color: white; }
+    .green { background-color: #2ecc71; color: white; }
+    .gray { background-color: #bdc3c7; color: black; }
+
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      width: fit-content;
+      margin: 0 auto;
+      border: 2px solid #333;
+    }
+    .column {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #aaa;
+    }
+    .cell {
+      width: 50px;
+      height: 50px;
+      border-bottom: 1px solid #aaa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+    }
+    .dot.red { background-color: #e74c3c; }
+    .dot.blue { background-color: #3498db; }
+    .dot.green { background-color: #2ecc71; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🎲 百家樂大路產生器</h1>
-    <p>請輸入莊(B)、閒(P)、和(T)：</p>
-    <input type="text" id="inputString" placeholder="例如：pbppbbpbtp" />
-    <button onclick="drawRoad()">畫出大路</button>
-    <div id="roadMap" class="road"></div>
+  <h2>百家樂大路輸入系統</h2>
+
+  <div class="button-area">
+    <button class="red" onclick="addResult('B')">莊</button>
+    <button class="blue" onclick="addResult('P')">閒</button>
+    <button class="green" onclick="addResult('T')">和</button>
+    <button class="gray" onclick="undo()">清除</button>
+    <button class="gray" onclick="clearAll()">全部清除</button>
   </div>
-  <script src="main.js"></script>
+
+  <div class="grid" id="roadGrid"></div>
+
+  <script>
+    const results = []; // 儲存輸入結果
+    const maxRows = 6;
+
+    function addResult(type) {
+      results.push(type);
+      renderGrid();
+    }
+
+    function undo() {
+      results.pop();
+      renderGrid();
+    }
+
+    function clearAll() {
+      results.length = 0;
+      renderGrid();
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById("roadGrid");
+      grid.innerHTML = "";
+
+      let column = [];
+      let columns = [];
+
+      results.forEach((r, index) => {
+        if (column.length >= maxRows) {
+          columns.push(column);
+          column = [];
+        }
+        column.push(r);
+      });
+      if (column.length > 0) columns.push(column);
+
+      columns.forEach(col => {
+        const colDiv = document.createElement("div");
+        colDiv.className = "column";
+
+        for (let i = 0; i < maxRows; i++) {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          const value = col[i];
+          if (value) {
+            const dot = document.createElement("div");
+            dot.className = `dot ${getColor(value)}`;
+            cell.appendChild(dot);
+          }
+          colDiv.appendChild(cell);
+        }
+        grid.appendChild(colDiv);
+      });
+    }
+
+    function getColor(value) {
+      switch(value) {
+        case 'B': return 'red';    // 莊
+        case 'P': return 'blue';   // 閒
+        case 'T': return 'green';  // 和
+        default: return '';
+      }
+    }
+  </script>
 </body>
 </html>
